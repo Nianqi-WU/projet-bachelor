@@ -1092,129 +1092,156 @@ export default function App() {
     return buildDailyInsight(checkinText, energyLevel, mentalFocus, selectedMood, goals, otherGoal);
   }, [checkinText, energyLevel, mentalFocus, selectedMood, goals, otherGoal]);
 
-  // Mock timeline data matching Image 2, structured in French, with Friday dynamically linked to checkinText
-  const dreamTimelineData = useMemo(() => [
-    {
-      id: 0,
-      date: "Mai 08",
-      dayName: "Vendredi",
-      dayShort: "Ven",
-      weekday: "Fri",
-      dayNum: "08",
-      title: "La symphonie des vagues",
-      content: checkinText.trim() || "Je présentais ma soutenance de mémoire dans une salle vide, puis mes slides se sont transformées en vagues d'eau cristalline. Je me sens inspiré par cette image.",
-      tags: ["INSPIRÉ", "EAU CRISTALLINE", "SOUTENANCE"],
-      mood: "créatif • serein",
-      energy: "Moyenne",
-      energyVal: 2,
-      image: "/assets/daily-card-04.jpeg"
-    },
-    {
-      id: 1,
-      date: "Mai 07",
-      dayName: "Jeudi",
-      dayShort: "Jeu",
-      weekday: "Thu",
-      dayNum: "07",
-      title: "Le labyrinthe doré",
-      content: "Je marchais dans un palais infini où chaque miroir reflétait une version différente de mon avenir. Une douce lueur dorée me guidait vers la sortie.",
-      tags: ["CALME", "LUMIÈRE DORÉE", "CHEMIN"],
-      mood: "calme • curieux",
-      energy: "Haute",
-      energyVal: 3,
-      image: "/assets/daily-card-05.jpeg"
-    },
-    {
-      id: 2,
-      date: "Mai 06",
-      dayName: "Mercredi",
-      dayShort: "Mer",
-      weekday: "Wed",
-      dayNum: "06",
-      title: "L'horloge de sable",
-      content: "Un immense sablier flottait au-dessus de la mer. Le sable s'écoulait vers le haut, et le bruit des vagues s'harmonisait avec mon rythme respiratoire.",
-      tags: ["REPOS", "HYPNOTIQUE", "CALME"],
-      mood: "apaisé • pensif",
-      energy: "Basse",
-      energyVal: 1,
-      image: "/assets/daily-card-06.jpeg"
-    },
-    {
-      id: 3,
-      date: "Mai 05",
-      dayName: "Mardi",
-      dayShort: "Mar",
-      weekday: "Tue",
-      dayNum: "05",
-      title: "Le vol au-dessus du dôme",
-      content: "Je flottais dans les airs sans aucun effort. En dessous de moi se tenait une magnifique cité de verre violet et or. L'air était pur, frais et calme.",
-      tags: ["VOLER", "CITÉ DE VERRE", "DÔME"],
-      mood: "libéré • nostalgique",
-      energy: "Basse",
-      energyVal: 1,
-      image: "/assets/daily-card-01.jpeg"
-    },
-    {
-      id: 4,
-      date: "Mai 04",
-      dayName: "Lundi",
-      dayShort: "Lun",
-      weekday: "Mon",
-      dayNum: "04",
-      title: "La bibliothèque étoilée",
-      content: "Des milliers de livres ouverts flottaient dans l'espace. Les pages brillaient comme des constellations, révélant des symboles oubliés.",
-      tags: ["SAGESSE", "ANCRAGE PROJET", "ÉTOILES"],
-      mood: "inspiré • calme",
-      energy: "Moyenne",
-      energyVal: 2,
-      image: "/assets/daily-card-02.jpeg"
-    },
-    {
-      id: 5,
-      date: "Mai 03",
-      dayName: "Dimanche",
-      dayShort: "Dim",
-      weekday: "Sun",
-      dayNum: "03",
-      title: "Le temple suspendu",
-      content: "Je flottais au-dessus d'une montagne embrumée où un temple de marbre blanc lévitait au rythme du vent. Des cloches d'or chantaient au loin.",
-      tags: ["PAISIBLE", "SAGESSE", "LÉVITATION"],
-      mood: "apaisé • inspiré",
-      energy: "Moyenne",
-      energyVal: 2,
-      image: "/assets/daily-card-03.jpeg"
-    },
-    {
-      id: 6,
-      date: "Mai 02",
-      dayName: "Samedi",
-      dayShort: "Sam",
-      weekday: "Sat",
-      dayNum: "02",
-      title: "La forêt phosphorescente",
-      content: "Chaque pas sur le sol faisait s'éveiller des milliers de fleurs lumineuses. Des papillons bleus scintillaient comme des lucioles géantes.",
-      tags: ["MAGIQUE", "LUMIÈRE", "CONFIANT"],
-      mood: "joyeux • curieux",
-      energy: "Haute",
-      energyVal: 3,
-      image: "/assets/daily-card-04.jpeg"
-    },
-    {
-      id: 7,
-      date: "Mai 01",
-      dayName: "Vendredi",
-      dayShort: "Ven",
-      weekday: "Fri",
-      dayNum: "01",
-      title: "L'océan de nuages",
-      content: "Je naviguais sur un bateau en bois doré au milieu d'un océan de nuages roses et mauves. Le soleil couchant réchauffait mon visage.",
-      tags: ["LIBERTÉ", "SÉRÉNITÉ", "VOYAGE"],
-      mood: "serein • nostalgique",
-      energy: "Basse",
-      energyVal: 1,
-      image: "/assets/daily-card-05.jpeg"
-    }
-  ], [checkinText]);
+  // Keep today's generated card separate from the historical dream entries.
+  const dreamTimelineData = useMemo(() => {
+    const today = new Date();
+    const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+    const todayDayNum = String(today.getDate()).padStart(2, '0');
+    const todayMonth = capitalize(today.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', ''));
+    const todayDayName = capitalize(today.toLocaleDateString('fr-FR', { weekday: 'long' }));
+    const todayDayShort = capitalize(today.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', ''));
+    const todayEnergy = energyLevel > 70 ? 'Haute' : energyLevel < 40 ? 'Basse' : 'Moyenne';
+    const todayEnergyVal = energyLevel > 70 ? 3 : energyLevel < 40 ? 1 : 2;
+
+    return [
+      {
+        id: 0,
+        isDailyGenerated: true,
+        date: `${todayMonth} ${todayDayNum}`,
+        dayName: todayDayName,
+        dayShort: todayDayShort,
+        weekday: today.toLocaleDateString('en-US', { weekday: 'short' }),
+        dayNum: todayDayNum,
+        title: dailyInsight.title,
+        content: checkinText.trim() || dailyInsight.subtitle,
+        tags: dailyInsight.tags,
+        mood: (selectedMood || 'calme').toLowerCase(),
+        energy: todayEnergy,
+        energyVal: todayEnergyVal,
+        image: dailyInsight.image
+      },
+      {
+        id: 1,
+        date: "Mai 08",
+        dayName: "Vendredi",
+        dayShort: "Ven",
+        weekday: "Fri",
+        dayNum: "08",
+        title: "La symphonie des vagues",
+        content: "Je présentais ma soutenance de mémoire dans une salle vide, puis mes slides se sont transformées en vagues d'eau cristalline. Je me sens inspiré par cette image.",
+        tags: ["INSPIRÉ", "EAU CRISTALLINE", "SOUTENANCE"],
+        mood: "créatif • serein",
+        energy: "Moyenne",
+        energyVal: 2,
+        image: "/assets/daily-card-04.jpeg"
+      },
+      {
+        id: 2,
+        date: "Mai 07",
+        dayName: "Jeudi",
+        dayShort: "Jeu",
+        weekday: "Thu",
+        dayNum: "07",
+        title: "Le labyrinthe doré",
+        content: "Je marchais dans un palais infini où chaque miroir reflétait une version différente de mon avenir. Une douce lueur dorée me guidait vers la sortie.",
+        tags: ["CALME", "LUMIÈRE DORÉE", "CHEMIN"],
+        mood: "calme • curieux",
+        energy: "Haute",
+        energyVal: 3,
+        image: "/assets/daily-card-05.jpeg"
+      },
+      {
+        id: 3,
+        date: "Mai 06",
+        dayName: "Mercredi",
+        dayShort: "Mer",
+        weekday: "Wed",
+        dayNum: "06",
+        title: "L'horloge de sable",
+        content: "Un immense sablier flottait au-dessus de la mer. Le sable s'écoulait vers le haut, et le bruit des vagues s'harmonisait avec mon rythme respiratoire.",
+        tags: ["REPOS", "HYPNOTIQUE", "CALME"],
+        mood: "apaisé • pensif",
+        energy: "Basse",
+        energyVal: 1,
+        image: "/assets/daily-card-06.jpeg"
+      },
+      {
+        id: 4,
+        date: "Mai 05",
+        dayName: "Mardi",
+        dayShort: "Mar",
+        weekday: "Tue",
+        dayNum: "05",
+        title: "Le vol au-dessus du dôme",
+        content: "Je flottais dans les airs sans aucun effort. En dessous de moi se tenait une magnifique cité de verre violet et or. L'air était pur, frais et calme.",
+        tags: ["VOLER", "CITÉ DE VERRE", "DÔME"],
+        mood: "libéré • nostalgique",
+        energy: "Basse",
+        energyVal: 1,
+        image: "/assets/daily-card-01.jpeg"
+      },
+      {
+        id: 5,
+        date: "Mai 04",
+        dayName: "Lundi",
+        dayShort: "Lun",
+        weekday: "Mon",
+        dayNum: "04",
+        title: "La bibliothèque étoilée",
+        content: "Des milliers de livres ouverts flottaient dans l'espace. Les pages brillaient comme des constellations, révélant des symboles oubliés.",
+        tags: ["SAGESSE", "ANCRAGE PROJET", "ÉTOILES"],
+        mood: "inspiré • calme",
+        energy: "Moyenne",
+        energyVal: 2,
+        image: "/assets/daily-card-02.jpeg"
+      },
+      {
+        id: 6,
+        date: "Mai 03",
+        dayName: "Dimanche",
+        dayShort: "Dim",
+        weekday: "Sun",
+        dayNum: "03",
+        title: "Le temple suspendu",
+        content: "Je flottais au-dessus d'une montagne embrumée où un temple de marbre blanc lévitait au rythme du vent. Des cloches d'or chantaient au loin.",
+        tags: ["PAISIBLE", "SAGESSE", "LÉVITATION"],
+        mood: "apaisé • inspiré",
+        energy: "Moyenne",
+        energyVal: 2,
+        image: "/assets/daily-card-03.jpeg"
+      },
+      {
+        id: 7,
+        date: "Mai 02",
+        dayName: "Samedi",
+        dayShort: "Sam",
+        weekday: "Sat",
+        dayNum: "02",
+        title: "La forêt phosphorescente",
+        content: "Chaque pas sur le sol faisait s'éveiller des milliers de fleurs lumineuses. Des papillons bleus scintillaient comme des lucioles géantes.",
+        tags: ["MAGIQUE", "LUMIÈRE", "CONFIANT"],
+        mood: "joyeux • curieux",
+        energy: "Haute",
+        energyVal: 3,
+        image: "/assets/daily-card-04.jpeg"
+      },
+      {
+        id: 8,
+        date: "Mai 01",
+        dayName: "Vendredi",
+        dayShort: "Ven",
+        weekday: "Fri",
+        dayNum: "01",
+        title: "L'océan de nuages",
+        content: "Je naviguais sur un bateau en bois doré au milieu d'un océan de nuages roses et mauves. Le soleil couchant réchauffait mon visage.",
+        tags: ["LIBERTÉ", "SÉRÉNITÉ", "VOYAGE"],
+        mood: "serein • nostalgique",
+        energy: "Basse",
+        energyVal: 1,
+        image: "/assets/daily-card-05.jpeg"
+      }
+    ];
+  }, [checkinText, dailyInsight, energyLevel, selectedMood]);
 
   // 30-day mock mood history data array for Mood Heatmap Screen
   const moodHistoryData = useMemo(() => {
@@ -2681,11 +2708,11 @@ export default function App() {
             {/* Weekly Strip Header */}
             <div className="w-full flex justify-between items-center bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl py-2 px-2.5 shadow-sm mb-5 z-10">
               {[
-                { label: "Lun", num: "04", index: 4 },
-                { label: "Mar", num: "05", index: 3 },
-                { label: "Mer", num: "06", index: 2 },
-                { label: "Jeu", num: "07", index: 1 },
-                { label: "Ven", num: "08", index: 0 },
+                { label: "Lun", num: "04", index: 5 },
+                { label: "Mar", num: "05", index: 4 },
+                { label: "Mer", num: "06", index: 3 },
+                { label: "Jeu", num: "07", index: 2 },
+                { label: "Ven", num: "08", index: 1 },
                 { label: "Sam", num: "09", index: -1 },
                 { label: "Dim", num: "10", index: -2 }
               ].map((day, idx) => {
@@ -2740,7 +2767,7 @@ export default function App() {
                   
                   const style = cardStyles[dream.id] || 'original';
 
-                  if (dream.id === 0) {
+                  if (dream.isDailyGenerated) {
                     // Daily generated card layout style matching Figure 1
                     return (
                       <div
@@ -3068,7 +3095,7 @@ export default function App() {
                             <div className="flex justify-between items-baseline">
                               <span className="font-semibold text-[#2f3336] text-[13px] leading-tight truncate">
                                 {(() => {
-                                  if (item.id === 0) {
+                                  if (item.isDailyGenerated) {
                                     if (item.tags.includes('CALME')) return 'Priorité Calme';
                                     if (item.tags.includes('INSPIRÉ')) return 'Focus Créatif';
                                     if (item.tags.includes('REPOS')) return 'Restauration Douce';
@@ -3081,7 +3108,7 @@ export default function App() {
                             </div>
                             <p className="text-[#515151]/75 text-[11px] font-light mt-0.5 line-clamp-1 leading-tight">
                               {(() => {
-                                  if (item.id === 0) {
+                                  if (item.isDailyGenerated) {
                                     return checkinText.trim()
                                       ? checkinText
                                       : `Bilan quotidien de vitalité (${item.energy.toLowerCase()}) et d'intention d'ancrage.`;
@@ -3098,7 +3125,7 @@ export default function App() {
                             {item.dayShort} {item.date.split(' ')[1]}
                           </span>
                           <span className="text-[8.5px] font-bold text-[#4a569d]/80 bg-[#eeeffc]/60 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
-                            {item.id === 0 
+                            {item.isDailyGenerated
                               ? (item.energy === 'Haute' ? 'VIT. HAUTE' : item.energy === 'Basse' ? 'VIT. BASSE' : 'BALANCED')
                               : item.mood.split(' • ')[0]
                             }
@@ -3390,11 +3417,12 @@ export default function App() {
 
         {showCalendarModal && (() => {
           // Define helper functions and variables in an IIFE so they don't pollute the upper scope
-          const currentDream = dreamTimelineData[activeDreamIndex] || dreamTimelineData[0];
+          const activeHistoricalDreamIndex = Math.max(1, activeDreamIndex);
+          const currentDream = dreamTimelineData[activeHistoricalDreamIndex] || dreamTimelineData[1];
           
           const getDayInfoForIndex = (idx: number) => {
             const baseDate = new Date(2026, 4, 8); // May 8, 2026
-            const targetDate = new Date(baseDate.getTime() - idx * 24 * 60 * 60 * 1000);
+            const targetDate = new Date(baseDate.getTime() - (idx - 1) * 24 * 60 * 60 * 1000);
             
             const daysFrench = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
             const monthsFrench = ["Janv.", "Févr.", "Mars", "Avril", "Mai", "Juin", "Juil.", "Août", "Sept.", "Oct.", "Nov.", "Déc."];
@@ -3410,7 +3438,7 @@ export default function App() {
               dayName,
               date: `${monthShort} ${dayNum}`,
               id: idx,
-              isOutOfRange: idx < 0 || idx > 7
+              isOutOfRange: idx < 1 || idx > 8
             };
           };
 
@@ -3454,10 +3482,10 @@ export default function App() {
             if (Math.abs(diff) > 40) {
               if (diff > 0) {
                 // Swipe Left -> Older date (index increases)
-                setActiveDreamIndex(prev => Math.min(7, prev + 1));
+                setActiveDreamIndex(prev => Math.min(8, Math.max(1, prev) + 1));
               } else {
                 // Swipe Right -> Newer date (index decreases)
-                setActiveDreamIndex(prev => Math.max(0, prev - 1));
+                setActiveDreamIndex(prev => Math.max(1, prev - 1));
               }
             }
           };
@@ -3549,10 +3577,10 @@ export default function App() {
                       
                       {/* Render 7 days: offsets -3 to 3 */}
                       {[-3, -2, -1, 0, 1, 2, 3].map((dx) => {
-                        const targetIdx = activeDreamIndex - dx;
+                        const targetIdx = activeHistoricalDreamIndex - dx;
                         const dayInfo = getDayInfoForIndex(targetIdx);
                         const curveStyle = getCurveStyles(dx);
-                        const isOutOfRange = targetIdx < 0 || targetIdx > 7;
+                        const isOutOfRange = targetIdx < 1 || targetIdx > 8;
                         
                         return (
                           <div
@@ -3610,7 +3638,7 @@ export default function App() {
                         {Array.from({ length: 31 }).map((_, i) => {
                           const dayNum = i + 1;
                           const hasDream = dayNum >= 1 && dayNum <= 8;
-                          const dreamIdx = hasDream ? 8 - dayNum : -1;
+                          const dreamIdx = hasDream ? 9 - dayNum : -1;
                           const isActive = hasDream && dreamIdx === activeDreamIndex;
                           
                           return (
