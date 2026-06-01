@@ -1,0 +1,13 @@
+.env
+.git/
+dist/
+node_modules/
+
+# Local asset-generation helpers and intermediate files
+copy-flower.mjs
+download-assets.js
+fetch-figma.js
+fetch-new.mjs
+figma_data.json
+generate_onboarding.mjs
+scratch/
