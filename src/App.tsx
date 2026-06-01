@@ -1113,7 +1113,7 @@ export default function App() {
         weekday: today.toLocaleDateString('en-US', { weekday: 'short' }),
         dayNum: todayDayNum,
         title: dailyInsight.title,
-        content: checkinText.trim() || dailyInsight.subtitle,
+        content: checkinText.trim() || "Deux fleurs lumineuses se balançaient doucement dans une brume pastel. Leur mouvement lent m'a apporté une sensation de calme et de clarté pour commencer la journée.",
         tags: dailyInsight.tags,
         mood: (selectedMood || 'calme').toLowerCase(),
         energy: todayEnergy,
@@ -2783,7 +2783,7 @@ export default function App() {
                           onClick={(e) => {
                             if (isCenter) {
                               e.stopPropagation();
-                              setShowDailyCard(true); // Open the full size check-in card overlay!
+                              setExpandedDreamId(dream.id);
                             }
                           }}
                         >
@@ -3925,7 +3925,7 @@ export default function App() {
                     </div>
                     <div className="flex flex-col items-end gap-0.5">
                       <div className="flex gap-0.5 items-baseline text-[16px] font-bold text-[#5e67a5]">
-                        <span>Mai</span>
+                        <span>{dream.date.split(' ')[0]}</span>
                         <span className="font-light text-[#7480bf]">{dream.dayNum}</span>
                       </div>
                       <p className="text-[#8c94c9] text-[9.5px] font-semibold text-right uppercase tracking-widest">
