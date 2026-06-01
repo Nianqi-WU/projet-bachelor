@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { 
   Smile, 
   Angry, 
@@ -55,6 +55,9 @@ const imgContainer = "/assets/45002a04f097cdc1e0e1302adc503c4360bc1371.svg";
 const imgContainer1 = "/assets/be91a4001f2a108d8925e8eeb9635b8236cf059a.svg";
 const imgContainer2 = "/assets/158f9a9516fb821ec3c4c6c5c485adab86d105d7.svg";
 const imgFlowerOrbBg = "/assets/flower_orb_bg.png";
+
+const PHONE_WIDTH = 402;
+const PHONE_HEIGHT = 874;
 
 const renderGoalWithIcon = (text: string) => {
   // Strip any emoji from text just in case (e.g., if there's an old emoji in localStorage)
@@ -896,6 +899,22 @@ function ObjectivesEditor({
 }
 
 export default function App() {
+  const [phoneScale, setPhoneScale] = useState(1);
+
+  useEffect(() => {
+    const updatePhoneScale = () => {
+      const pagePadding = window.innerWidth >= 640 ? 64 : 32;
+      const widthScale = (window.innerWidth - pagePadding) / PHONE_WIDTH;
+      const heightScale = (window.innerHeight - pagePadding) / PHONE_HEIGHT;
+
+      setPhoneScale(Math.max(0.1, Math.min(1, widthScale, heightScale)));
+    };
+
+    updatePhoneScale();
+    window.addEventListener('resize', updatePhoneScale);
+    return () => window.removeEventListener('resize', updatePhoneScale);
+  }, []);
+
   // 长期目标与用户 Session
   const [userEmail, setUserEmail] = useState(() => localStorage.getItem('lumo_user_email') || '');
   const [longTermGoal, setLongTermGoal] = useState(() => localStorage.getItem('lumo_long_term_goal') || '');
@@ -1565,16 +1584,25 @@ export default function App() {
 
   const sliderBase = "w-full h-2 rounded-full appearance-none bg-white/50 border border-white/40 shadow-inner focus:outline-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:size-7 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-[3px] [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:transition-colors [&::-webkit-slider-thumb]:duration-300 [&::-moz-range-thumb]:size-7 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-[3px] [&::-moz-range-thumb]:border-white";
   return (
-    <div className="bg-[#fcfaf8] min-h-screen flex items-center justify-center p-4 sm:p-8 overflow-y-auto">
+    <div className="bg-[#fcfaf8] min-h-screen flex items-center justify-center p-4 sm:p-8 overflow-auto">
       <style>{GLOBAL_STYLES}</style>
 
       <div
-        className="bg-[#f4f2f7] relative max-w-[402px] rounded-[48px] shadow-2xl overflow-hidden flex flex-col z-0"
+        className="relative shrink-0"
         style={{
-          height: 'min(874px, calc(100vh - 64px))',
-          width: 'min(402px, calc(100vw - 32px))',
+          height: PHONE_HEIGHT * phoneScale,
+          width: PHONE_WIDTH * phoneScale,
         }}
       >
+        <div
+          className="bg-[#f4f2f7] relative rounded-[48px] shadow-2xl overflow-hidden flex flex-col z-0"
+          style={{
+            height: PHONE_HEIGHT,
+            width: PHONE_WIDTH,
+            transform: `scale(${phoneScale})`,
+            transformOrigin: 'top left',
+          }}
+        >
         <StatusBar />
         {/* Removed spacer to make top bar transparent */}
 
@@ -3936,6 +3964,7 @@ export default function App() {
           );
         })()}
         {view !== 'onboarding' && <BottomNav currentView={view} onViewChange={setView} />}
+        </div>
       </div>
     </div>
   );
