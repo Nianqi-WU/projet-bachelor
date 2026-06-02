@@ -900,14 +900,17 @@ function ObjectivesEditor({
 
 export default function App() {
   const [phoneScale, setPhoneScale] = useState(1);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
 
   useEffect(() => {
     const updatePhoneScale = () => {
       const pagePadding = window.innerWidth >= 640 ? 64 : 32;
       const widthScale = (window.innerWidth - pagePadding) / PHONE_WIDTH;
       const heightScale = (window.innerHeight - pagePadding) / PHONE_HEIGHT;
+      const isMobile = window.innerWidth < 640;
 
-      setPhoneScale(Math.max(0.1, Math.min(1, widthScale, heightScale)));
+      setIsMobileViewport(isMobile);
+      setPhoneScale(Math.max(0.1, isMobile ? Math.min(1, widthScale) : Math.min(1, widthScale, heightScale)));
     };
 
     updatePhoneScale();
@@ -1626,8 +1629,9 @@ export default function App() {
           style={{
             height: PHONE_HEIGHT,
             width: PHONE_WIDTH,
-            transform: `scale(${phoneScale})`,
-            transformOrigin: 'top left',
+            ...(isMobileViewport
+              ? { zoom: phoneScale }
+              : { transform: `scale(${phoneScale})`, transformOrigin: 'top left' }),
           }}
         >
         <StatusBar />
