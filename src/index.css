@@ -135,6 +135,9 @@
 @utility scrollbar-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior-y: contain;
   &::-webkit-scrollbar {
     display: none;
   }
